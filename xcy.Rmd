@@ -1,0 +1,489 @@
+---
+title: "dissertation"
+output: html_document
+date: "2024-08-18"
+---
+
+```{r}
+# Load necessary packages
+library(knitr)
+library(kableExtra)
+
+# Create a data frame with the variables
+variables <- data.frame(
+  Variable = c("Region", "PM2.5", "SO2", "NO2","Income level","Population Density","Health literacy level","Life Expectancy","Unemployment Rate "),
+  Description = c("Different cities in China",
+                  "the concentration of PM2.5, µg/m^3",
+                  "the concentration of SO2, µg/m^3",
+                  "the concentration of NO2, µg/m^3",
+                  "the average income per year",
+                  "the number of people per square kilometer",
+                  "The degree to which individuals can make decision on health related issues",
+                  "Average number of yeaars people can live in particular region",
+                  "the number of unemployed people as a percentage of the labor force")
+)
+
+# Create a table with lines
+variables %>%
+  kable("html", caption = "Table 1: description of the 5 dataset variables used within the study.") %>%
+  kable_styling(full_width = F) %>%
+  column_spec(1, border_right = TRUE) %>%
+  row_spec(0, bold = TRUE) %>%
+  kable_styling(position = "center", bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+```{r}
+
+# Load necessary packages
+library(dplyr)
+library(readr)
+library(rmarkdown)
+
+# Read the CSV file
+xcy <- read_csv("xcy.csv")
+
+# Trim any leading or trailing spaces from the column names
+names(xcy) <- trimws(names(xcy))
+
+# View the names of the columns to confirm they match
+print(names(xcy))
+
+# Correct the selection of columns with the exact names
+rmarkdown::paged_table(xcy[
+  c("Region", "PM2.5", "SO2", "NO2", "Income Level", "Population Density", "Health literacy level %", "Life Expectancy", "Unemployment Rate")],
+  options = list(rows.print = 15)
+)
+
+```
+```{r}
+summary(xcy[
+  c("Region", "PM2.5", "SO2", "NO2", "Income Level", "Population Density", "Health literacy level %", "Life Expectancy", "Unemployment Rate")]) 
+
+```   
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+
+GLM.1 <- glm(PM2.5 ~ Income.Level, family=gaussian(identity), data=xcy)
+summary(GLM.1)
+
+exp(coef(GLM.1))  # Exponentiated coefficients ("odds ratios")
+```
+```{r}
+# Assume you want to highlight the point where Income Level is 50
+highlight_point <- 29261
+
+# Create a color vector that colors all points blue, except for the one you want to highlight
+colors <- ifelse(xcy$Income.Level == highlight_point, "blue", "green")
+
+# Plot the data points with the custom color vector
+plot(xcy$Income.Level, xcy$PM2.5, 
+     xlab = "Income Level(Yuan)", 
+     ylab = "PM2.5(ug/m^3)", 
+     main = "Relationship between PM2.5 and Income Level",
+     pch = 19, col = colors)
+
+# Add the regression line from the GLM model
+abline(GLM.1, col = "red", lwd = 2)
+
+# Add a legend
+legend("topright", legend = c("Data Points", "Highlighted Linfen", "Regression Line"), 
+       col = c("green", "blue", "red"), pch = c(19, 19, NA), lwd = c(NA, NA, 2))
+```                                                                                                                                                                                               
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.2 <- glm(NO2 ~ Income.Level, family=gaussian(identity), data=xcy)
+summary(GLM.2)
+exp(coef(GLM.2))  # Exponentiated coefficients ("odds ratios")
+
+```
+
+```{r}
+# Assume you want to highlight the point where Income Level is 50
+highlight_point <- 29261
+
+# Create a color vector that colors all points blue, except for the one you want to highlight
+colors <- ifelse(xcy$Income.Level == highlight_point, "blue", "green")
+
+# Plot the data points with the custom color vector
+plot(xcy$Income.Level, xcy$NO2, 
+     xlab = "Income Level(Yuan)", 
+     ylab = "NO2(ug/m^3)", 
+     main = "Relationship between NO2 and Income Level",
+     pch = 19, col = colors)
+
+# Add the regression line from the GLM model
+abline(GLM.2, col = "red", lwd = 2)
+
+# Add a legend
+legend("topright", legend = c("Data Points", "Highlighted Linfen", "Regression Line"), 
+       col = c("green", "blue", "red"), pch = c(19, 19, NA), lwd = c(NA, NA, 2))
+```
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.3 <- glm(SO2 ~ Income.Level, family=gaussian(identity), data=xcy, weights=Health.literacy.level..)
+summary(GLM.3)
+exp(coef(GLM.3))  # Exponentiated coefficients ("odds ratios")
+
+```
+```{r}
+# Assume you want to highlight the point where Income Level is 50
+highlight_point <- 29261
+
+# Create a color vector that colors all points blue, except for the one you want to highlight
+colors <- ifelse(xcy$Income.Level == highlight_point, "blue", "green")
+
+# Plot the data points with the custom color vector
+plot(xcy$Income.Level, xcy$SO2, 
+     xlab = "Income Level(Yuan)", 
+     ylab = "SO2(ug/m^3)", 
+     main = "Relationship between SO2 and Income Level",
+     pch = 19, col = colors)
+
+# Add the regression line from the GLM model
+abline(GLM.3, col = "red", lwd = 2)
+
+# Add a legend
+legend("topright", legend = c("Data Points", "Highlighted Linfen", "Regression Line"), 
+       col = c("green", "blue", "red"), pch = c(19, 19, NA), lwd = c(NA, NA, 2))
+```
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.4 <- glm(Life.Expectancy ~ Income.Level, family=gaussian(identity), data=xcy)
+summary(GLM.4)
+exp(coef(GLM.4))  # Exponentiated coefficients ("odds ratios")
+
+```
+```{r}
+# Assume you want to highlight the point where Income Level is 50
+highlight_point <- 29261
+
+# Create a color vector that colors all points blue, except for the one you want to highlight
+colors <- ifelse(xcy$Income.Level == highlight_point, "blue", "green")
+
+# Plot the data points with the custom color vector
+plot(xcy$Income.Level, xcy$Life.Expectancy, 
+     xlab = "Income Level(Yuan)", 
+     ylab = "Life Expectancy(Years)", 
+     main = "Relationship between Life Expectancy and Income Level",
+     pch = 19, col = colors)
+
+# Add the regression line from the GLM model
+abline(GLM.4, col = "red", lwd = 2)
+
+# Add a legend
+legend("topright", legend = c("Data Points", "Highlighted Linfen", "Regression Line"), 
+       col = c("green", "blue", "red"), pch = c(19, 19, NA), lwd = c(NA, NA, 2))
+```
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.5 <- glm(Life.Expectancy ~ Population.Density, family=gaussian(identity), data=xcy)
+summary(GLM.5)
+
+exp(coef(GLM.5))  # Exponentiated coefficients ("odds ratios")
+
+```
+```{r}
+# Assume you want to highlight the point where Income Level is 50
+highlight_point <- 192.4
+
+# Create a color vector that colors all points blue, except for the one you want to highlight
+colors <- ifelse(xcy$Population.Density == highlight_point, "blue", "green")
+
+# Plot the data points with the custom color vector
+plot(xcy$Population.Density, xcy$Life.Expectancy, 
+     xlab = "Population Density(People/Km^2)", 
+     ylab = "Life Expectancy(Years)", 
+     main = "Relationship between Life Expectancy and Population Density",
+     pch = 19, col = colors)
+
+# Add the regression line from the GLM model
+abline(GLM.5, col = "red", lwd = 2)
+
+# Add a legend
+legend("topright", legend = c("Data Points", "Highlighted Linfen", "Regression Line"), 
+       col = c("green", "blue", "red"), pch = c(19, 19, NA), lwd = c(NA, NA, 2))
+```
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.6 <- glm(Life.Expectancy ~ PM2.5, family=gaussian(identity), data=xcy, weights=Health.literacy.level..)
+summary(GLM.6)
+
+exp(coef(GLM.6))  # Exponentiated coefficients ("odds ratios")
+
+```
+```{r}
+# Assume you want to highlight the point where Income Level is 50
+highlight_point <- 74.01
+
+# Create a color vector that colors all points blue, except for the one you want to highlight
+colors <- ifelse(xcy$Life.Expectancy == highlight_point, "blue", "green")
+
+# Plot the data points with the custom color vector
+plot(xcy$PM2.5, xcy$Life.Expectancy, 
+     xlab = "PM2.5(ug/m^3)", 
+     ylab = "Life Expectancy(Years)", 
+     main = "Relationship between Life Expectancy and PM2.5",
+     pch = 19, col = colors)
+
+# Add the regression line from the GLM model
+abline(GLM.6, col = "red", lwd = 2)
+
+# Add a legend
+legend("topright", legend = c("Data Points", "Highlighted Linfen", "Regression Line"), 
+       col = c("green", "blue", "red"), pch = c(19, 19, NA), lwd = c(NA, NA, 2))
+```
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.7 <- glm(Life.Expectancy ~ PM2.5 + NO2 + SO2, family=gaussian(identity), data=xcy)
+summary(GLM.7)
+
+
+exp(coef(GLM.7))  # Exponentiated coefficients ("odds ratios")
+
+```
+
+```{r}
+# Load necessary libraries
+library(car)
+
+# Assuming your data frame is named `xcy`
+# Fit the multiple linear regression model
+model <- lm(Life.Expectancy ~ PM2.5 + NO2 + SO2, data = xcy)
+
+# Summary of the model to check the coefficients
+summary(model)
+
+# Highlight specific point (replace with the correct coordinates from your data)
+highlight_PM2.5 <- 10.5
+highlight_NO2 <- 29
+highlight_SO2 <- 4.5
+
+index_PM2.5 <- which(xcy$PM2.5 == highlight_PM2.5)[1]  # Ensure only one value is selected
+index_NO2 <- which(xcy$NO2 == highlight_NO2)[1]        # Ensure only one value is selected
+index_SO2 <- which(xcy$SO2 == highlight_SO2)[1]        # Ensure only one value is selected
+
+# Plot PM2.5 vs Life Expectancy
+plot(xcy$PM2.5, xcy$Life.Expectancy,
+     xlab = "PM2.5(ug/m^3)",
+     ylab = "Life Expectancy(Years)",
+     main = "Life Expectancy vs. PM2.5",
+     pch = 19, col = "green")
+
+# Add the fitted regression line for PM2.5
+abline(lm(Life.Expectancy ~ PM2.5, data = xcy), col = "red", lwd = 2)
+
+# Highlight the specific point on PM2.5 vs Life Expectancy plot
+points(highlight_PM2.5, xcy$Life.Expectancy[xcy$PM2.5 == highlight_PM2.5], col = "blue", pch = 19, cex = 2)
+
+# Plot NO2 vs Life Expectancy
+plot(xcy$NO2, xcy$Life.Expectancy,
+     xlab = "NO2(ug/m^3)",
+     ylab = "Life Expectancy(Years)",
+     main = "Life Expectancy vs. NO2",
+     pch = 19, col = "green")
+
+# Add the fitted regression line for NO2
+abline(lm(Life.Expectancy ~ NO2, data = xcy), col = "red", lwd = 2)
+
+# Highlight the specific point on NO2 vs Life Expectancy plot
+points(highlight_NO2, xcy$Life.Expectancy[xcy$NO2 == highlight_NO2], col = "blue", pch = 19, cex = 2)
+
+# Plot SO2 vs Life Expectancy
+plot(xcy$SO2, xcy$Life.Expectancy,
+     xlab = "SO2(ug/m^3)",
+     ylab = "Life Expectancy(Years)",
+     main = "Life Expectancy vs. SO2",
+     pch = 19, col = "green")
+
+# Add the fitted regression line for SO2
+abline(lm(Life.Expectancy ~ SO2, data = xcy), col = "red", lwd = 2)
+
+# Highlight the specific point on SO2 vs Life Expectancy plot
+if(!is.na(index_SO2)) {
+  points(xcy$SO2[index_SO2], xcy$Life.Expectancy[index_SO2], col = "blue", pch = 19, cex = 2)
+}
+
+# Partial residual plots to visualize the effect of each predictor after accounting for others
+crPlots(model)
+```
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.13 <- glm(Life.Expectancy ~ Health.literacy.level.., family=gaussian(identity), data=xcy)
+summary(GLM.13)
+
+
+exp(coef(GLM.13))  # Exponentiated coefficients ("odds ratios")
+
+```
+```{r}
+# Assume you want to highlight the point where Income Level is 50
+highlight_point <- 74.01
+
+# Create a color vector that colors all points blue, except for the one you want to highlight
+colors <- ifelse(xcy$Life.Expectancy == highlight_point, "blue", "green")
+
+# Plot the data points with the custom color vector
+plot(xcy$Health.literacy.level.., xcy$Life.Expectancy, 
+     xlab = "Health Literacy level (%)", 
+     ylab = "Life Expectancy(Years)", 
+     main = "Relationship between Life Expectancy and Health Literacy Level",
+     pch = 19, col = colors)
+
+# Add the regression line from the GLM model
+abline(GLM.13, col = "red", lwd = 2)
+
+# Add a legend
+legend("topright", legend = c("Data Points", "Highlighted Linfen", "Regression Line"), 
+       col = c("green", "blue", "red"), pch = c(19, 19, NA), lwd = c(NA, NA, 2))
+```
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.15 <- glm(Income.Level ~ Health.literacy.level.., family=gaussian(identity), data=xcy)
+summary(GLM.15)
+
+exp(coef(GLM.15))  # Exponentiated coefficients ("odds ratios")
+
+```
+```{r}
+# Assume you want to highlight the point where Income Level is 50
+highlight_point <- 29261
+
+# Create a color vector that colors all points blue, except for the one you want to highlight
+colors <- ifelse(xcy$Income.Level == highlight_point, "blue", "green")
+
+# Plot the data points with the custom color vector
+plot(xcy$Health.literacy.level.., xcy$Income.Level, 
+     xlab = "Health Literacy level (%)", 
+     ylab = "Income (Yuan)", 
+     main = "Relationship between Income and Health Literacy Level",
+     pch = 19, col = colors)
+
+# Add the regression line from the GLM model
+abline(GLM.15, col = "red", lwd = 2)
+
+# Add a legend
+legend("topright", legend = c("Data Points", "Highlighted Linfen", "Regression Line"), 
+       col = c("green", "blue", "red"), pch = c(19, 19, NA), lwd = c(NA, NA, 2))
+```
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.16 <- glm(Unemployment.Rate ~ Life.Expectancy, family=gaussian(identity), data=xcy)
+summary(GLM.16)
+
+exp(coef(GLM.16))  # Exponentiated coefficients ("odds ratios")
+
+```
+```{r}
+# Assume you want to highlight the point where Income Level is 50
+highlight_point <- 29261
+
+# Create a color vector that colors all points blue, except for the one you want to highlight
+colors <- ifelse(xcy$Income.Level == highlight_point, "blue", "green")
+
+# Plot the data points with the custom color vector
+plot(xcy$Life.Expectancy, xcy$Unemployment.Rate, 
+     xlab = "Life Expectancy (Years)", 
+     ylab = "Unemployment Rate (%)", 
+     main = "Relationship between Life Expectancy and Unemployment rate",
+     pch = 19, col = colors)
+
+# Add the regression line from the GLM model
+abline(GLM.16, col = "red", lwd = 2)
+
+# Add a legend
+legend("topright", legend = c("Data Points", "Highlighted Linfen", "Regression Line"), 
+       col = c("green", "blue", "red"), pch = c(19, 19, NA), lwd = c(NA, NA, 2))
+```
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.17 <- glm(Life.Expectancy ~ Health.literacy.level.. + Income.Level, family=gaussian(identity), data=xcy)
+summary(GLM.17)
+
+exp(coef(GLM.17))  # Exponentiated coefficients ("odds ratios")
+
+```
+
+
+```{r}
+# Load necessary library
+library(ggplot2)
+
+# Create a scatter plot of Income Level vs. Life Expectancy with a color gradient for Health Literacy Level
+ggplot(xcy, aes(x = Income.Level, y = Life.Expectancy, color = Health.literacy.level..)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_color_gradient(low = "blue", high = "red") +
+  labs(title = "Combined Effect of Income Level and Health Literacy on Life Expectancy",
+       x = "Income Level",
+       y = "Life Expectancy",
+       color = "Health Literacy Level (%)") +
+  theme_minimal()
+```
+```{r}
+library(Rcmdr)   #load the Rcmdr package
+library(effects) #load the effects package
+library(nnet)    #load the nnet package (necessary for multinomial loglinear models)
+library(MASS)    #load the MASS package (necessary for the proportional-odds regression model)
+GLM.18 <- glm(Life.Expectancy ~ Income.Level + Population.Density + Unemployment.Rate, family=gaussian(identity), data=xcy)
+summary(GLM.18)
+
+
+exp(coef(GLM.18))  # Exponentiated coefficients ("odds ratios")
+
+```
+```{r}
+# Load necessary libraries
+library(effects)
+library(ggplot2)
+
+# Fit the model
+GLM.18 <- glm(Life.Expectancy ~ Income.Level + Population.Density + Unemployment.Rate, 
+              family = gaussian(identity), data = xcy)
+
+# Calculate the effects
+effects_list <- allEffects(GLM.18)
+
+# Plot the effects
+plot(effects_list, multiline = TRUE, 
+     main = "Socioeconomic effect on Life", 
+     xlab = "Predictor Values", 
+     ylab = "Life Expectancy",
+     colors = c("red", "blue", "green"))
+
+
+```
+
+
